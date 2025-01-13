@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KTP Management</title>
+    <style>
+        :root {
+            --navy: #001f3f;
+            --navy-light: #003366;
+            --navy-dark: #00152A;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--navy-dark), var(--navy));
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        h1 {
+            text-align: center;
+            color: #fff;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-bottom: 30px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        table, th, td {
+            border: none;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+        }
+
+        th {
+            background-color: var(--navy);
+            color: white;
+            font-weight: 500;
+        }
+
+        th:first-child {
+            border-top-left-radius: 10px;
+        }
+
+        th:last-child {
+            border-top-right-radius: 10px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        tr:hover {
+            background-color: #e9ecef;
+            transition: background-color 0.3s ease;
+        }
+
+        .form-group {
+            background: #fff;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .form-group h2 {
+            color: var(--navy);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--navy);
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--navy);
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group textarea:focus {
+            border-color: var(--navy);
+            box-shadow: 0 0 5px rgba(0,31,63,0.2);
+            outline: none;
+        }
+
+        .form-group button {
+            padding: 12px 25px;
+            background-color: var(--navy);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1em;
+        }
+
+        .form-group button:hover {
+            background-color: var(--navy-light);
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .actions button {
+            margin-right: 8px;
+            padding: 8px 15px;
+            background-color: var(--navy);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .actions button:hover {
+            background-color: var(--navy-light);
+            transform: translateY(-1px);
+        }
+
+        .actions button.delete {
+            background-color: #dc3545;
+        }
+
+        .actions button.delete:hover {
+            background-color: #c82333;
+        }
+
+        input[type="file"] {
+            padding: 10px;
+            background-color: #f8f9fa;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        input[type="file"]:hover {
+            border-color: var(--navy);
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>KTP Management</h1>
+        <div class="form-group">
+            <label for="search">Search by Name:</label>
+            <input type="text" id="search" placeholder="Enter name">
+            <button onclick="searchKtp()">Search</button>
+        </div>
+        <table id="ktpTable">
+            <thead>
+                <tr>
+                    <th>NIK</th>
+                    <th>Nama</th>
+                    <th>Alamat</th>
+                    <th>Tanggal Lahir</th>
+                    <th>Foto</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Data will be populated here -->
+            </tbody>
+        </table>
+        <div class="form-group">
+            <h2>Add/Edit KTP</h2>
+            <input type="hidden" id="ktpNik">
+            <label for="nama">Nama:</label>
+            <input type="text" id="nama" placeholder="Enter name">
+            <label for="alamat">Alamat:</label>
+            <textarea id="alamat" placeholder="Enter address"></textarea>
+            <label for="tgllahir">Tanggal Lahir:</label>
+            <input type="date" id="tgllahir">
+            <label for="foto">Foto (JPEG):</label>
+            <input type="file" id="foto" accept="image/jpeg">
+            <button onclick="saveKtp()">Save</button>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function() {
+            loadAllKtp();
+        });
+
+        function loadAllKtp() {
+            $.ajax({
+                url: 'http://localhost:8080/all',
+                method: 'GET',
+                success: function(data) {
+                    const tbody = $('#ktpTable tbody');
+                    tbody.empty();
+                    data.forEach(ktp => {
+                        const row = `
+                            <tr>
+                                <td>${ktp.nik}</td>
+                                <td>${ktp.nama}</td>
+                                <td>${ktp.alamat}</td>
+                                <td>${new Date(ktp.tgllahir).toLocaleDateString()}</td>
+                                <td><img src="data:image/jpeg;base64,${ktp.foto}" width="50"></td>
+                                <td class="actions">
+                                    <button onclick="editKtp('${ktp.nik}')">Edit</button>
+                                    <button class="delete" onclick="deleteKtp('${ktp.nik}')">Delete</button>
+                                </td>
+                            </tr>
+                        `;
+                        tbody.append(row);
+                    });
+                }
+            });
+        }
+
+        function searchKtp() {
+            const nama = $('#search').val();
+            $.ajax({
+                url: `http://localhost:8080/search/${nama}`,
+                method: 'GET',
+                success: function(data) {
+                    const tbody = $('#ktpTable tbody');
+                    tbody.empty();
+                    data.forEach(ktp => {
+                        const row = `
+                            <tr>
+                                <td>${ktp.nik}</td>
+                                <td>${ktp.nama}</td>
+                                <td>${ktp.alamat}</td>
+                                <td>${new Date(ktp.tgllahir).toLocaleDateString()}</td>
+                                <td><img src="data:image/jpeg;base64,${ktp.foto}" width="50"></td>
+                                <td class="actions">
+                                    <button onclick="editKtp('${ktp.nik}')">Edit</button>
+                                    <button class="delete" onclick="deleteKtp('${ktp.nik}')">Delete</button>
+                                </td>
+                            </tr>
+                        `;
+                        tbody.append(row);
+                    });
+                }
+            });
+        }
+
+        function saveKtp() {
+            const nik = $('#ktpNik').val();
+            const nama = $('#nama').val();
+            const alamat = $('#alamat').val();
+            const tgllahir = $('#tgllahir').val();
+            const fotoFile = $('#foto')[0].files[0];
+
+            const data = {
+                nik: nik,
+                nama: nama,
+                alamat: alamat,
+                tgllahir: tgllahir
+            };
+
+            if (fotoFile) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const foto = e.target.result.split(',')[1]; // Get Base64 part
+                    data.foto = foto;
+
+                    sendSaveRequest(data, nik);
+                };
+                reader.readAsDataURL(fotoFile);
+            } else {
+                sendSaveRequest(data, nik);
+            }
+        }
+
+        function sendSaveRequest(data, nik) {
+            const method = nik ? 'PUT' : 'POST';
+            const url = nik ? `http://localhost:8080/edit/${nik}` : 'http://localhost:8080/add';
+
+            $.ajax({
+                url: url,
+                method: method,
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function(message) {
+                    alert(message);
+                    loadAllKtp();
+                    clearForm();
+                }
+            });
+        }
+
+        function editKtp(nik) {
+            $.ajax({
+                url: `http://localhost:8080/search/nik/${nik}`,
+                method: 'GET',
+                success: function(ktp) {
+                    $('#ktpNik').val(ktp.nik);
+                    $('#nama').val(ktp.nama);
+                    $('#alamat').val(ktp.alamat);
+                    $('#tgllahir').val(new Date(ktp.tgllahir).toISOString().split('T')[0]);
+                    $('#foto').val(''); // Clear file input
+                }
+            });
+        }
+
+        function deleteKtp(nik) {
+            $.ajax({
+                url: `http://localhost:8080/delete/${nik}`,
+                method: 'DELETE',
+                success: function(message) {
+                    alert(message);
+                    loadAllKtp();
+                }
+            });
+        }
+
+        function clearForm() {
+            $('#ktpNik').val('');
+            $('#nama').val('');
+            $('#alamat').val('');
+            $('#tgllahir').val('');
+            $('#foto').val('');
+        }
+    </script>
+</body>
+</html>
